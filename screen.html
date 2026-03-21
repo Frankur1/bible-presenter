@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<style>
+
+body{
+margin:0;
+background:url("fon.png") no-repeat center center fixed;
+background-size:cover;
+color:black;
+font-family:Georgia,serif;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+height:100vh;
+text-align:center;
+padding:60px;
+box-sizing:border-box;
+}
+
+#reference{
+font-size:40px;
+margin-bottom:40px;
+opacity:0.9;
+}
+
+#ru{
+margin-bottom:80px;
+}
+
+#ru,#hy{
+width:90%;
+line-height:1.4;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="reference"></div>
+
+<div id="ru"></div>
+
+<div id="hy"></div>
+
+<script>
+
+function fitText(){
+
+const ru=document.getElementById("ru")
+const hy=document.getElementById("hy")
+
+let size=120
+
+while(size>20){
+
+ru.style.fontSize=size+"px"
+hy.style.fontSize=size+"px"
+
+if(document.body.scrollHeight<=window.innerHeight){
+break
+}
+
+size-=2
+
+}
+
+}
+
+window.addEventListener("message",function(e){
+
+const data=e.data
+
+if(data.type==="donation"){
+
+document.getElementById("reference").innerText="📍 Пожертвование"
+
+document.getElementById("ru").innerText=
+"Драгоценные братья и сестры, вы можете совершить добровольное пожертвование на карты:\n\n"+
+"Номер армянской карты\n"+
+"4318270000888915\n"+
+"ID Bank\n"+
+"Zaruhi Gorbyleva\n\n"+
+"Номер российской карты\n"+
+"2202208135454024\n"+
+"Заруи Левоновна Г.\n"+
+"Сбербанк\n\n"+
+"Благодарим за ваши дары!\n"+
+"Господь да благословит вас 🙏"
+
+document.getElementById("hy").innerText=""
+
+fitText()
+
+return
+
+}
+
+let ref
+
+if(data.ru.length>1){
+
+let end=data.start+data.ru.length-1
+ref=data.ruBook+" / "+data.hyBook+" "+data.chapter+":"+data.start+"-"+end
+
+}else{
+
+ref=data.ruBook+" / "+data.hyBook+" "+data.chapter+":"+data.start
+
+}
+
+document.getElementById("reference").innerText=ref
+
+let ruText=""
+let hyText=""
+
+for(let i=0;i<data.ru.length;i++){
+
+let num=data.start+i
+
+ruText+=num+". "+data.ru[i]+" "
+hyText+=num+". "+data.hy[i]+" "
+
+}
+
+document.getElementById("ru").innerText=ruText
+document.getElementById("hy").innerText=hyText
+
+fitText()
+
+})
+
+</script>
+
+</body>
+</html>
