@@ -1,0 +1,11 @@
+{
+  "name": "bible-presenter",
+  "version": "1.0.0",
+  "description": "Bible Presenter for Church",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
