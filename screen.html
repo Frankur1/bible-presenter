@@ -1,142 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <title>Display</title>
+    <style>
+        body { 
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            /* ФОН ПО УМОЛЧАНИЮ (ТВОЯ КАРТИНКА) */
+            background: url('fon.png') no-repeat center center fixed; 
+            background-size: cover;
+            transition: background 0.3s ease;
+        }
 
-<meta charset="UTF-8">
+        /* Класс для черного фона */
+        body.black-mode { background: #000 !important; }
 
-<style>
+        .container { width: 90%; text-align: center; color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        
+        #hy-block { font-size: 5vh; font-weight: bold; margin-bottom: 25px; line-height: 1.4; }
+        #ru-block { font-size: 3.5vh; color: #ddd; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 25px; line-height: 1.4; }
+        
+        /* ЦВЕТ ТЕКСТА ПО УМОЛЧАНИЮ (ЕСЛИ КАРТИНКА) - ЧЕРНЫЙ */
+        #hy-block, #ru-block, #ref { color: #000 !important; text-shadow: 1px 1px 3px rgba(255,255,255,0.5); }
+        .v-num { font-size: 0.7em; color: #ffd700; margin-right: 10px; font-weight: normal; font-style: italic; }
 
-body{
-margin:0;
-background:url("fon.png") no-repeat center center fixed;
-background-size:cover;
-color:black;
-font-family:Georgia,serif;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-height:100vh;
-text-align:center;
-padding:60px;
-box-sizing:border-box;
-}
+        /* ЦВЕТ ТЕКСТА ЕСЛИ ЧЕРНЫЙ ФОН - БЕЛЫЙ */
+        body.black-mode #hy-block { color: #fff !important; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); }
+        body.black-mode #ru-block { color: #ddd !important; }
+        body.black-mode #ref { color: #ffd700 !important; }
 
-#reference{
-font-size:40px;
-margin-bottom:40px;
-opacity:0.9;
-}
+        /* Скрыть русский блок */
+        .hidden { display: none !important; }
 
-#ru{
-margin-bottom:80px;
-}
-
-#ru,#hy{
-width:90%;
-line-height:1.4;
-}
-
-</style>
-
+        #ref { font-size: 3vh; margin-top: 35px; color: #ffd700; font-weight: bold; }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <div id="hy-block"></div>
+        <div id="ru-block"></div>
+        <div id="ref"></div>
+    </div>
 
-<div id="reference"></div>
+    <script>
+        window.addEventListener("message", (event) => {
+            const data = event.data;
+            if (!data) return;
 
-<div id="ru"></div>
+            // 1. Управляем фоном
+            if (data.blackBg) {
+                document.body.classList.add('black-mode');
+            } else {
+                document.body.classList.remove('black-mode');
+            }
 
-<div id="hy"></div>
+            // 2. Управляем русским текстом
+            const ruBlock = document.getElementById("ru-block");
+            if (data.showRu) {
+                ruBlock.classList.remove('hidden');
+            } else {
+                ruBlock.classList.add('hidden');
+            }
 
-<script>
+            // 3. Вывод армянского (всегда)
+            let hyHTML = "";
+            data.hy.forEach(v => {
+                hyHTML += `<span><span class="v-num">${v.verse}</span>${v.text}</span> `;
+            });
+            document.getElementById("hy-block").innerHTML = hyHTML;
 
-function fitText(){
+            // 4. Вывод русского (если включен)
+            let ruHTML = "";
+            data.ru.forEach(v => {
+                ruHTML += `<span><span class="v-num">${v.verse}</span>${v.text}</span> `;
+            });
+            document.getElementById("ru-block").innerHTML = ruHTML;
 
-const ru=document.getElementById("ru")
-const hy=document.getElementById("hy")
-
-let size=120
-
-while(size>20){
-
-ru.style.fontSize=size+"px"
-hy.style.fontSize=size+"px"
-
-if(document.body.scrollHeight<=window.innerHeight){
-break
-}
-
-size-=2
-
-}
-
-}
-
-window.addEventListener("message",function(e){
-
-const data=e.data
-
-if(data.type==="donation"){
-
-document.getElementById("reference").innerText="📍 Пожертвование"
-
-document.getElementById("ru").innerText=
-"Драгоценные братья и сестры, вы можете совершить добровольное пожертвование на карты:\n\n"+
-"Номер армянской карты\n"+
-"4318270000888915\n"+
-"ID Bank\n"+
-"Zaruhi Gorbyleva\n\n"+
-"Номер российской карты\n"+
-"2202208135454024\n"+
-"Заруи Левоновна Г.\n"+
-"Сбербанк\n\n"+
-"Благодарим за ваши дары!\n"+
-"Господь да благословит вас 🙏"
-
-document.getElementById("hy").innerText=""
-
-fitText()
-
-return
-
-}
-
-let ref
-
-if(data.ru.length>1){
-
-let end=data.start+data.ru.length-1
-ref=data.ruBook+" / "+data.hyBook+" "+data.chapter+":"+data.start+"-"+end
-
-}else{
-
-ref=data.ruBook+" / "+data.hyBook+" "+data.chapter+":"+data.start
-
-}
-
-document.getElementById("reference").innerText=ref
-
-let ruText=""
-let hyText=""
-
-for(let i=0;i<data.ru.length;i++){
-
-let num=data.start+i
-
-ruText+=num+". "+data.ru[i]+" "
-hyText+=num+". "+data.hy[i]+" "
-
-}
-
-document.getElementById("ru").innerText=ruText
-document.getElementById("hy").innerText=hyText
-
-fitText()
-
-})
-
-</script>
-
+            // 5. Динамическая ссылка внизу
+            let refText = "";
+            if (data.showRu) {
+                refText = `${data.hyBook} ${data.chapter}:${data.start} / ${data.ruBook} ${data.chapter}:${data.start}`;
+            } else {
+                refText = `${data.hyBook} ${data.chapter}:${data.start}`;
+            }
+            document.getElementById("ref").innerText = refText;
+        });
+    </script>
 </body>
 </html>
