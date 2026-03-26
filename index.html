@@ -2,132 +2,137 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Bible Presenter PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Presenter - Control Panel</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); width: 480px; }
-        h2 { text-align: center; color: #1877f2; margin-bottom: 20px; }
-        .group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .settings { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 15px; }
-        .checkbox-row { display: flex; align-items: center; margin-bottom: 8px; cursor: pointer; }
-        .checkbox-row input { width: auto; margin-right: 10px; }
-        button { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-blue { background: #1877f2; color: white; }
-        .btn-gray { background: #e4e6eb; color: #050505; }
-        #status { text-align: center; margin-top: 15px; font-weight: bold; color: green; }
+        :root { --primary: #4a90e2; --secondary: #5c6bc0; --bg: #f0f2f5; --card-bg: #ffffff; --text: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: var(--card-bg); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        h2 { color: var(--secondary); margin-bottom: 20px; }
+        select, input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .row { display: flex; gap: 10px; }
+        .row input { flex: 1; }
+        .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        button { padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .btn-open { background: #6c757d; color: white; flex: 1; }
+        .btn-show { background: var(--primary); color: white; flex: 2; }
+        .btn-donate { background: #e91e63; color: white; margin-top: 5px; }
+        /* Новый стиль для кнопки ресторанов */
+        .btn-rest { background: #673ab7; color: white; margin-top: 5px; } 
+        
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .switch-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; background: #f8f9fa; padding: 10px; border-radius: 8px; }
+        .switch { position: relative; display: inline-block; width: 46px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
     </style>
 </head>
 <body>
-
-<div class="card">
-    <h2>Bible Presenter PRO</h2>
-    
-    <div class="group">
-        <label>Книга</label>
-        <select id="bookSelect"></select>
-    </div>
-
+<div class="container">
+    <h2>Bible Presenter</h2>
+    <select id="book"><option>Загрузка книг...</option></select>
     <div class="row">
-        <div class="group">
-            <label>Глава</label>
-            <input type="number" id="chapInput" value="1" min="1">
-        </div>
-        <div class="group">
-            <label>Стих(и)</label>
-            <input type="text" id="verseInput" placeholder="Напр: 1-5">
-        </div>
+        <input type="number" id="chapter" placeholder="Глава" value="1">
+        <input type="text" id="verse" placeholder="Стих (напр. 5 или 5-10)">
     </div>
-
-    <div class="settings">
-        <label class="checkbox-row">
-            <input type="checkbox" id="blackBg"> Включить черный фон
-        </label>
-        <label class="checkbox-row">
-            <input type="checkbox" id="showRu"> Включить Русский текст (по умолч. выкл.)
-        </label>
+    <div class="switch-container">
+        <span>Русский язык</span>
+        <label class="switch"><input type="checkbox" id="showRu" checked><span class="slider"></span></label>
     </div>
-
-    <button class="btn-gray" onclick="openScreen()">1. Открыть экран проектора</button>
-    <button class="btn-blue" onclick="showVerse()">2. Вывести на экран</button>
-
-    <div id="status">Загрузка...</div>
+    <div class="controls">
+        <div class="row">
+            <button class="btn-open" onclick="openScreen()">Экран</button>
+            <button class="btn-show" onclick="showVerse()">ПОКАЗАТЬ</button>
+        </div>
+        <button class="btn-donate" onclick="showDonate()">ԶՈՀ (Пожертвование)</button>
+        <button class="btn-rest" onclick="showRestaurants()">Ռեստորաններ (Рестораны)</button>
+    </div>
 </div>
 
 <script>
-    let ruBible, hyBible, screenWindow;
-    const ruNames = ["Бытие","Исход","Левит","Числа","Второзаконие","Иисус Навин","Судьи","Руфь","1 Царств","2 Царств","3 Царств","4 Царств","1 Паралипоменон","2 Паралипоменон","Ездра","Неемия","Есфирь","Иов","Псалтирь","Притчи","Екклесиаст","Песнь песней","Исаия","Иеремия","Плач Иеремии","Иезекииль","Даниил","Осия","Иоиль","Амос","Авдий","Иона","Михей","Наум","Аввакум","Софония","Аггей","Захария","Малахия","Матфей","Марк","Лука","Иоанн","Деяния","Римлянам","1 Коринфянам","2 Коринфянам","Галатам","Ефесянам","Филиппийцам","Колоссянам","1 Фессалоникийцам","2 Фессалоникийцам","1 Тимофею","2 Тимофею","Титу","Филимону","Евреям","Иакова","1 Петра","2 Петра","1 Иоанна","2 Иоанна","3 Иоанна","Иуды","Откровение"];
-    const hyNames = ["Ծննդոց","Ելք","Ղեւտական","Թուեր","Բ Օրինաց","Յեսու","Դատավորներ","Ռութ","Ա Թագավորաց","Բ Թագավորաց","Գ Թագավորաց","Դ Թագավորաց","Ա Մնացորդաց","Բ Մնացորդաց","Եզրա","Նէեմիա","Եսթեր","Յոբ","Սաղմոսներ","Առակներ","Ժողովող","Երգ Երգոց","Եսայի","Երեմիա","Ողբ","Եզեկիէլ","Դանիէլ","Ովսէէ","Յովէլ","Ամոս","Աբդիա","Յովնան","Միքիա","Նաւում","Ամբակում","Սոփոնիա","Ագէոս","Զաքարիա","Մաղաքիա","Մատթէոս","Մարկոս","Ղուկաս","Յովհաննէս","Գործք","Հռոմեացիներ","Ա Կորնթացիներ","Բ Կորնթացիներ","Գաղատացիներ","Եփեսացիներ","Փիլիպպեցիներ","Կողոսացիներ","Ա Թեսաղոնիկեցիներ","Բ Թեսաղոնիկեցինер","Ա Տիմոթէոս","Բ Տիմոթէոս","Տիտոս","Փիլիմոն","Եբրայեցիներ","Յակոբոս","Ա Պետրոս","Բ Պետրոս","Ա Յովհաննէս","Բ Յովհաննէս","Գ Յովհաննէս","Յուդա","Յայտնութիւն"];
+// Твой словарь перевода (убедись, что ключи совпадают с полем name в JSON)
+const bookNamesMap = {
+    "Genesis": ["Бытие", "Ծննդոց"], "Exodus": ["Исход", "Ելք"], "Leviticus": ["Левит", "Ղևտական"],
+    "Numbers": ["Числа", "Թվեր"], "Deuteronomy": ["Второзаконие", "Երկրորդ Օրենք"], "Joshua": ["Иисус Навин", "Հեսու"],
+    "Judges": ["Судьи", "Դատավորներ"], "Ruth": ["Руфь", "Հռութ"], "1 Samuel": ["1 Царств", "Ա Թագավորություններ"],
+    "2 Samuel": ["2 Царств", "Բ Թագավորություններ"], "1 Kings": ["3 Царств", "Գ Թագավորություններ"],
+    "2 Kings": ["4 Царств", "Դ Թագավորություններ"], "1 Chronicles": ["1 Паралипоменон", "Ա Մնացորդաց"],
+    "2 Chronicles": ["2 Паралипоменон", "Բ Մնացорդաց"], "Ezra": ["Ездра", "Եզրաս"], "Nehemiah": ["Неемия", "Նեեմի"],
+    "Esther": ["Есфирь", "Եսթեր"], "Job": ["Иов", "Հոբ"], "Psalms": ["Псалтирь", "Սաղմոսներ"],
+    "Proverbs": ["Притчи", "Առակներ"], "Ecclesiastes": ["Екклесиаст", "Ժողովող"], "Song of Solomon": ["Песня Песней", "Երգ Երգոց"],
+    "Isaiah": ["Исаия", "Եսայի"], "Jeremiah": ["Иеремия", "Երեմիա"], "Lamentations": ["Плач Иеремии", "Ողբ"],
+    "Ezekiel": ["Иезекииль", "Եզեկիել"], "Daniel": ["Даниил", "Դանիել"], "Hosea": ["Осия", "Ովսեե"],
+    "Joel": ["Иоиль", "Հովել"], "Amos": ["Աмос", "Ամոս"], "Obadiah": ["Աвдий", "Աբդիու"],
+    "Jonah": ["Иона", "Հովնան"], "Micah": ["Михей", "Միքիա"], "Nahum": ["Наум", "Նավում"],
+    "Habakkuk": ["Աввакум", "Ամբակում"], "Zephaniah": ["Софония", "Սոփոնիա"], "Haggai": ["Աггей", "Անգե"],
+    "Zechariah": ["Захария", "Զաքարիա"], "Malachi": ["Малахия", "Մաղաքիա"], "Matthew": ["Матфея", "Մատթեոս"],
+    "Mark": ["Марка", "Մարկոս"], "Luke": ["Луки", "Ղուկաս"], "John": ["Иоанна", "Հովհաննես"],
+    "Acts": ["Деяния", "Գործք Առաքելոց"], "Romans": ["Римлянам", "Հռոմեացիներին"], "1 Corinthians": ["1 Коринфянам", "Ա Կորնթացիներին"],
+    "2 Corinthians": ["2 Коринфянам", "Բ Կорнթացիներին"], "Galatians": ["Галатам", "Գաղատացիներին"], "Ephesians": ["Ефесянам", "Եփեսացիներին"],
+    "Philippians": ["Филиппийцам", "Փիլիպպեցիներին"], "Colossians": ["Колоссянам", "Կողոսացիներին"], "1 Thessalonians": ["1 Фессалоникийцам", "Ա Թեսաղոնիկեցինерին"],
+    "2 Thessalonians": ["2 Фессалоникийцам", "Բ Թեսաղոնիկեցիներին"], "1 Timothy": ["1 Тимофею", "Ա Տիմոթեոս"],
+    "2 Timothy": ["2 Тимофею", "Բ Տիմոթեոս"], "Titus": ["Титу", "Տիտոս"], "Philemon": ["Филимону", "Փիլիմոն"],
+    "Hebrews": ["Евреям", "Եբրայեցիներին"], "James": ["Иакова", "Հակոբոս"], "1 Peter": ["1 Петра", "Ա Պետрոս"],
+    "2 Peter": ["2 Петра", "Բ Պետрոս"], "1 John": ["1 Иоанна", "Ա Հովհաննես"], "2 John": ["2 Иоанна", "Բ Հովհաննես"],
+    "3 John": ["3 Иоанна", "Գ Հովհաննես"], "Jude": ["Иуды", "Հուդա"], "Revelation": ["Откровение", "Հայտնություն"]
+};
 
-    async function init() {
-        const s = document.getElementById("status");
-        try {
-            ruBible = await fetch('bible/ru_synodal.json').then(r => r.json());
-            hyBible = await fetch('bible/ArmEastern_fixed.json').then(r => r.json());
-            
-            const sel = document.getElementById("bookSelect");
-            ruNames.forEach((name, i) => {
-                let opt = document.createElement("option");
-                opt.value = i; opt.text = `${name} / ${hyNames[i]}`;
-                sel.appendChild(opt);
-            });
-            s.innerText = "Готово ✅";
-        } catch (e) {
-            s.innerText = "Ошибка файлов! ❌"; s.style.color = "red";
-        }
+let ruBible, hyBible, screenWindow;
+
+async function loadBible(){
+    try {
+        const rRes = await fetch("bible/ru_synodal.json");
+        ruBible = await rRes.json();
+        const hRes = await fetch("bible/ArmEastern_fixed.json");
+        hyBible = await hRes.json();
+        const select = document.getElementById("book");
+        select.innerHTML = ""; 
+        ruBible.forEach((book, i) => {
+            let names = bookNamesMap[book.name] || [book.name, hyBible[i]?.name || book.name];
+            let option = document.createElement("option");
+            option.value = i;
+            option.text = `${names[0]} / ${names[1]}`;
+            select.appendChild(option);
+        });
+    } catch (e) { console.error(e); }
+}
+loadBible();
+function openScreen(){ screenWindow = window.open("screen.html", "screen"); }
+
+function showVerse(){
+    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+    const bookSelect = document.getElementById("book");
+    const chapter = parseInt(document.getElementById("chapter").value);
+    const verseInput = document.getElementById("verse").value;
+    const isRuEnabled = document.getElementById("showRu").checked;
+    let start, end;
+    if(verseInput.includes("-")){ let p = verseInput.split("-"); start = parseInt(p[0]); end = parseInt(p[1]); }
+    else { start = parseInt(verseInput); end = start; }
+    const parts = bookSelect.options[bookSelect.selectedIndex].text.split(" / ");
+    let ruVerses = [], hyVerses = [];
+    for(let i = start; i <= end; i++){
+        let rv = ruBible[bookSelect.value]?.chapters?.[chapter-1]?.[i-1];
+        let hv = hyBible[bookSelect.value]?.chapters?.[chapter-1]?.[i-1];
+        if(isRuEnabled && rv) ruVerses.push(rv.text || rv);
+        if(hv) hyVerses.push(hv.text || hv);
     }
+    screenWindow.postMessage({ type: "verse", ruBook: isRuEnabled ? parts[0] : null, hyBook: parts[1], chapter, start, end, ru: ruVerses, hy: hyVerses }, "*");
+}
 
-    function openScreen() { screenWindow = window.open("screen.html", "screen"); }
+function showDonate(){
+    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+    screenWindow.postMessage({ type: "donate" }, "*");
+}
 
-    function showVerse() {
-        if (!ruBible || !hyBible) return;
-
-        const idx = document.getElementById("bookSelect").value;
-        const chap = parseInt(document.getElementById("chapInput").value) - 1;
-        const vInput = document.getElementById("verseInput").value.trim();
-        const isBlack = document.getElementById("blackBg").checked;
-        const isShowRu = document.getElementById("showRu").checked;
-
-        if (isNaN(chap) || !vInput) return;
-
-        let start, end;
-        if (vInput.includes("-")) {
-            const p = vInput.split("-");
-            start = parseInt(p[0]) - 1; end = parseInt(p[1]) - 1;
-        } else {
-            start = end = parseInt(vInput) - 1;
-        }
-
-        const getVerses = (bible) => {
-            try {
-                const book = bible[idx];
-                const chapters = book.chapters || book;
-                const chapter = chapters[chap];
-                const versesInRange = chapter.slice(start, end + 1);
-                
-                // Превращаем массив строк в массив объектов с номерами стихов
-                return versesInRange.map((text, i) => {
-                    return { verse: start + i + 1, text: text };
-                });
-            } catch (e) { return []; }
-        };
-
-        if (screenWindow) {
-            screenWindow.postMessage({
-                ruBook: ruNames[idx],
-                hyBook: hyNames[idx],
-                chapter: chap + 1,
-                start: start + 1,
-                ru: getVerses(ruBible),
-                hy: getVerses(hyBible),
-                blackBg: isBlack,
-                showRu: isShowRu // Включаем русский если галочка стоит
-            }, "*");
-        }
-    }
-    init();
+// НОВАЯ ФУНКЦИЯ ДЛЯ РЕСТОРАНОВ
+function showRestaurants(){
+    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+    // Отправляем сообщение типа "image" и имя файла
+    screenWindow.postMessage({ type: "image", src: "restoranner.png" }, "*");
+}
 </script>
 </body>
 </html>
