@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: url("fon.png") no-repeat center center fixed; background-size: cover; font-family: Georgia, serif; }
-        #main-display { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        #reference { font-size: 50px; font-weight: bold; color: #1a1a1a; text-align: center; margin-bottom: 20px; text-shadow: 1px 1px 2px white; flex-shrink: 0; }
+        #main-display { width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; box-sizing: border-box; }
+        #reference { font-size: 50px; font-weight: bold; color: #1a1a1a; text-align: center; margin-bottom: 20px; text-shadow: 1px 1px 2px white; flex-shrink: 0; min-height: 60px; }
         #content-wrapper { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; }
         .text-block { width: 100%; line-height: 1.2; word-wrap: break-word; color: black; display: none; }
         #ru { font-style: italic; color: #333; margin-bottom: 0.4em; }
@@ -14,7 +14,7 @@
         
         /* СТИЛЬ ДЛЯ КАРТИНКИ */
         #img-block { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; }
-        #img-block img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        #img-block img { max-width: 85%; max-height: 75%; object-fit: contain; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); background: white; padding: 10px; }
     </style>
 </head>
 <body>
@@ -49,13 +49,19 @@ window.addEventListener("message", function(e) {
     const ru = document.getElementById("ru"), hy = document.getElementById("hy"), don = document.getElementById("donate");
     const ib = document.getElementById("img-block"), pic = document.getElementById("pic");
 
-    // 1. Скрываем вообще всё
+    // 1. Скрываем вообще всё по умолчанию
     [ru, hy, don, ib].forEach(el => el.style.display = "none");
     ref.innerText = "";
 
-    // 2. Если это КАРТИНКА
+    // Обработка кнопки "ОЧИСТИТЬ"
+    if (d.type === "clear") {
+        return; // Просто выходим, так как мы уже всё скрыли выше
+    }
+
+    // 2. Если это КАРТИНКА (Рестораны или Поочередность)
     if (d.type === "image") {
-        pic.src = d.src + "?t=" + new Date().getTime(); // Обновляем кэш
+        pic.src = d.src + "?t=" + new Date().getTime();
+        ref.innerText = d.title || "";
         ib.style.display = "flex";
         return;
     }
@@ -67,7 +73,7 @@ window.addEventListener("message", function(e) {
         don.style.display = "block";
     } 
     // 4. Если это СТИХИ
-    else {
+    else if (d.type === "verse") {
         let title = (d.ruBook ? d.ruBook + " / " : "") + d.hyBook;
         title += " " + d.chapter + ":" + d.start + (d.end !== d.start ? "-" + d.end : "");
         ref.innerText = title;

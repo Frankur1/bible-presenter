@@ -14,11 +14,13 @@
         .row input { flex: 1; }
         .controls { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
         button { padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        
         .btn-open { background: #6c757d; color: white; flex: 1; }
         .btn-show { background: var(--primary); color: white; flex: 2; }
-        .btn-donate { background: #e91e63; color: white; margin-top: 5px; }
-        /* Новый стиль для кнопки ресторанов */
-        .btn-rest { background: #673ab7; color: white; margin-top: 5px; } 
+        .btn-donate { background: #e91e63; color: white; }
+        .btn-rest { background: #673ab7; color: white; } 
+        .btn-hert { background: #009688; color: white; } /* Стиль для Поочередности */
+        .btn-clear { background: #37474f; color: white; margin-top: 10px; } /* Стиль для Очистки */
         
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         .switch-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; background: #f8f9fa; padding: 10px; border-radius: 8px; }
@@ -47,36 +49,39 @@
             <button class="btn-open" onclick="openScreen()">Экран</button>
             <button class="btn-show" onclick="showVerse()">ПОКАЗАТЬ</button>
         </div>
-        <button class="btn-donate" onclick="showDonate()">ԶՈՀ (Пожертвование)</button>
-        <button class="btn-rest" onclick="showRestaurants()">Ռեստորաններ (Рестораны)</button>
+        <div class="row">
+            <button class="btn-donate" onclick="showDonate()">ԶՈՀ</button>
+            <button class="btn-rest" onclick="showRestaurants()">Ռեստորաններ</button>
+            <button class="btn-hert" onclick="showHert()">Հերթականություն</button>
+        </div>
+        <button class="btn-clear" onclick="clearScreen()">ОЧИСТИТЬ ЭКРАН</button>
     </div>
 </div>
 
 <script>
-// Твой словарь перевода (убедись, что ключи совпадают с полем name в JSON)
 const bookNamesMap = {
     "Genesis": ["Бытие", "Ծննդոց"], "Exodus": ["Исход", "Ելք"], "Leviticus": ["Левит", "Ղևտական"],
     "Numbers": ["Числа", "Թվեր"], "Deuteronomy": ["Второзаконие", "Երկրորդ Օրենք"], "Joshua": ["Иисус Навин", "Հեսու"],
     "Judges": ["Судьи", "Դատավորներ"], "Ruth": ["Руфь", "Հռութ"], "1 Samuel": ["1 Царств", "Ա Թագավորություններ"],
     "2 Samuel": ["2 Царств", "Բ Թագավորություններ"], "1 Kings": ["3 Царств", "Գ Թագավորություններ"],
     "2 Kings": ["4 Царств", "Դ Թագավորություններ"], "1 Chronicles": ["1 Паралипоменон", "Ա Մնացորդաց"],
-    "2 Chronicles": ["2 Паралипоменон", "Բ Մնացорդաց"], "Ezra": ["Ездра", "Եզրաս"], "Nehemiah": ["Неемия", "Նեեմի"],
-    "Esther": ["Есфирь", "Եսթեր"], "Job": ["Иов", "Հոբ"], "Psalms": ["Псалтирь", "Սաղմոսներ"],
-    "Proverbs": ["Притчи", "Առակներ"], "Ecclesiastes": ["Екклесиаст", "Ժողովող"], "Song of Solomon": ["Песня Песней", "Երգ Երգոց"],
-    "Isaiah": ["Исаия", "Եսայի"], "Jeremiah": ["Иеремия", "Երեմիա"], "Lamentations": ["Плач Иеремии", "Ողբ"],
+    "2 Chronicles": ["2 Паралипоменон", "Բ Մնացորդաց"], "Ezra": ["Ездра", "Եզրաս"], "Nehemiah": ["Неемия", "Նեեմի"],
+    "Esther": ["Есфирь", "Եսթер"], "Job": ["Иов", "Հոբ"], "Psalms": ["Псалтирь", "Սաղմոսներ"],
+    "Proverbs": ["Притчи", "Առակներ"], "Ecclesiastes": ["Екклесиаст", "Ժողովող"], "Song of Solomon": ["Песня Песней", "Երգ Եрգոց"],
+    "Isaiah": ["Исаия", "Եսայի"], "Jeremiah": ["Иеремия", "Երեմիа"], "Lamentations": ["Плач Иеремии", "Ողբ"],
     "Ezekiel": ["Иезекииль", "Եզեկիել"], "Daniel": ["Даниил", "Դանիել"], "Hosea": ["Осия", "Ովսեե"],
     "Joel": ["Иоиль", "Հովել"], "Amos": ["Աмос", "Ամոս"], "Obadiah": ["Աвдий", "Աբդիու"],
     "Jonah": ["Иона", "Հովնան"], "Micah": ["Михей", "Միքիա"], "Nahum": ["Наум", "Նավում"],
-    "Habakkuk": ["Աввакум", "Ամբակում"], "Zephaniah": ["Софония", "Սոփոնիա"], "Haggai": ["Աггей", "Անգե"],
+    "Habakkuk": ["Աввакум", "Ամբակում"], "Zephaniah": ["Софония", "Սոփոնիа"], "Haggai": ["Աггей", "Անգե"],
     "Zechariah": ["Захария", "Զաքարիա"], "Malachi": ["Малахия", "Մաղաքիա"], "Matthew": ["Матфея", "Մատթեոս"],
     "Mark": ["Марка", "Մարկոս"], "Luke": ["Луки", "Ղուկաս"], "John": ["Иоанна", "Հովհաննես"],
     "Acts": ["Деяния", "Գործք Առաքելոց"], "Romans": ["Римлянам", "Հռոմեացիներին"], "1 Corinthians": ["1 Коринфянам", "Ա Կորնթացիներին"],
-    "2 Corinthians": ["2 Коринфянам", "Բ Կорнթացիներին"], "Galatians": ["Галатам", "Գաղատացիներին"], "Ephesians": ["Ефесянам", "Եփեսացիներին"],
-    "Philippians": ["Филиппийцам", "Փիլիպպեցիներին"], "Colossians": ["Колоссянам", "Կողոսացիներին"], "1 Thessalonians": ["1 Фессалоникийцам", "Ա Թեսաղոնիկեցինерին"],
+    "2 Corinthians": ["2 Коринфянам", "Բ Կորնթացիներին"], "Galatians": ["Галатам", "Գաղատացիներին"], "Ephesians": ["Ефесянам", "Եփեսացիներին"],
+    "Philippians": ["Филиппийцам", "Փիլիպպեցիներին"], "Colossians": ["Колоссянам", "Կողոսացիներին"], "1 Thessalonians": ["1 Фессалоникийцам", "Ա Թեսաղոնիկեցիներին"],
     "2 Thessalonians": ["2 Фессалоникийцам", "Բ Թեսաղոնիկեցիներին"], "1 Timothy": ["1 Тимофею", "Ա Տիմոթեոս"],
     "2 Timothy": ["2 Тимофею", "Բ Տիմոթեոս"], "Titus": ["Титу", "Տիտոս"], "Philemon": ["Филимону", "Փիլիմոն"],
-    "Hebrews": ["Евреям", "Եբրայեցիներին"], "James": ["Иакова", "Հակոբոս"], "1 Peter": ["1 Петра", "Ա Պետрոս"],
-    "2 Peter": ["2 Петра", "Բ Պետрոս"], "1 John": ["1 Иоанна", "Ա Հովհաննես"], "2 John": ["2 Иоанна", "Բ Հովհաննես"],
+    "Hebrews": ["Евреям", "Եբրայեցիներին"], "James": ["Иакова", "Հակոբոս"], "1 Peter": ["1 Петра", "Ա Պետրոս"],
+    "2 Peter": ["2 Петра", "Բ Պետրոս"], "1 John": ["1 Иоанна", "Ա Հովհաննես"], "2 John": ["2 Иоанна", "Բ Հովհաննես"],
     "3 John": ["3 Иоанна", "Գ Հովհաննես"], "Jude": ["Иуды", "Հուդա"], "Revelation": ["Откровение", "Հայտնություն"]
 };
 
@@ -100,10 +105,15 @@ async function loadBible(){
     } catch (e) { console.error(e); }
 }
 loadBible();
+
+function ensureScreen() {
+    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+}
+
 function openScreen(){ screenWindow = window.open("screen.html", "screen"); }
 
 function showVerse(){
-    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+    ensureScreen();
     const bookSelect = document.getElementById("book");
     const chapter = parseInt(document.getElementById("chapter").value);
     const verseInput = document.getElementById("verse").value;
@@ -123,15 +133,23 @@ function showVerse(){
 }
 
 function showDonate(){
-    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
+    ensureScreen();
     screenWindow.postMessage({ type: "donate" }, "*");
 }
 
-// НОВАЯ ФУНКЦИЯ ДЛЯ РЕСТОРАНОВ
 function showRestaurants(){
-    if(!screenWindow || screenWindow.closed) screenWindow = window.open("screen.html", "screen");
-    // Отправляем сообщение типа "image" и имя файла
-    screenWindow.postMessage({ type: "image", src: "restoranner.png" }, "*");
+    ensureScreen();
+    screenWindow.postMessage({ type: "image", src: "restoranner.png", title: "Ռեստորաններ / Рестораны" }, "*");
+}
+
+function showHert(){
+    ensureScreen();
+    screenWindow.postMessage({ type: "image", src: "qr_hertakanutyun.png", title: "Հերթականություն / Поочередность" }, "*");
+}
+
+function clearScreen() {
+    ensureScreen();
+    screenWindow.postMessage({ type: "clear" }, "*");
 }
 </script>
 </body>
